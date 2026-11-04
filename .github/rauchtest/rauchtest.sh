@@ -76,8 +76,9 @@ echo "Upload: $BYTES Bytes"
 
 echo "== App läuft noch"
 adb shell pidof "$PKG"
-if adb logcat -d | grep -q "FATAL EXCEPTION"; then
-    adb logcat -d | grep -A30 "FATAL EXCEPTION"
+# Nur Abstürze der App zählen; uiautomator selbst stürzt im Emulator gelegentlich ab.
+if adb logcat -d -b crash | grep -q "Process: $PKG"; then
+    adb logcat -d -b crash
     exit 1
 fi
 echo "Rauchtest bestanden."
