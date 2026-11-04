@@ -22,6 +22,11 @@ warte() {
     local ende=$((SECONDS + ${3:-60}))
     while [ $SECONDS -lt $ende ]; do
         if abzug && XY="$(python3 "$HIER/finde.py" ui.xml "$1" "$2")"; then return 0; fi
+        # Systemmeldung „… isn't responding“ (z. B. Pixel Launcher im Emulator) wegtippen.
+        if [ -f ui.xml ] && W="$(python3 "$HIER/finde.py" ui.xml id android:id/aerr_wait)"; then
+            echo "Systemmeldung weggetippt"
+            adb shell input tap $W
+        fi
         sleep 2
     done
     echo "::error::Nicht gefunden: $1 $2"
@@ -39,6 +44,8 @@ trap 'kill $SERVER 2>/dev/null || true' EXIT
 sleep 1
 curl -fsS http://127.0.0.1:8106/health
 
+# Absturz-/Hängt-Meldungen anderer Apps unterdrücken (Emulator auf dem Runner ist langsam).
+adb shell settings put global hide_error_dialogs 1 || true
 adb install -r "$APK"
 adb shell pm grant "$PKG" android.permission.CAMERA
 adb logcat -c
