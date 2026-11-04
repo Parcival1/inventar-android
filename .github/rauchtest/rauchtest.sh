@@ -1,0 +1,83 @@
+#!/bin/bash
+# Rauchtest im Emulator: erster Start, Serveradresse, Weboberfläche,
+# eigene Kamera, ein Foto aufnehmen, Upload kommt beim Server an.
+set -euo pipefail
+APK="$1"
+PKG=de.djka.inventar
+HIER="$(cd "$(dirname "$0")" && pwd)"
+SCHRITT=0
+
+bild() { SCHRITT=$((SCHRITT + 1)); adb exec-out screencap -p > "rauchtest-$SCHRITT-$1.png" || true; }
+
+abzug() {
+    for _ in 1 2 3; do
+        adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 && adb pull /sdcard/ui.xml ui.xml >/dev/null 2>&1 && return 0
+        sleep 1
+    done
+    return 1
+}
+
+# warte <art> <wert> [sekunden]: bis der Knoten da ist, Mitte steht dann in $XY
+warte() {
+    local ende=$((SECONDS + ${3:-60}))
+    while [ $SECONDS -lt $ende ]; do
+        if abzug && XY="$(python3 "$HIER/finde.py" ui.xml "$1" "$2")"; then return 0; fi
+        sleep 2
+    done
+    echo "::error::Nicht gefunden: $1 $2"
+    bild fehler
+    cat ui.xml || true
+    adb logcat -d | grep -E "AndroidRuntime|$PKG" | tail -80 || true
+    exit 1
+}
+
+tippe() { adb shell input tap $XY; }
+
+python3 "$HIER/server.py" > server.log 2>&1 &
+SERVER=$!
+trap 'kill $SERVER 2>/dev/null || true' EXIT
+sleep 1
+curl -fsS http://127.0.0.1:8106/health
+
+adb install -r "$APK"
+adb shell pm grant "$PKG" android.permission.CAMERA
+adb logcat -c
+adb shell am start -W -n "$PKG/.MainActivity"
+
+echo "== erster Start: Willkommen und Serveradresse"
+warte text "Willkommen" 90
+bild willkommen
+warte id "$PKG:id/eingabe"; tippe
+adb shell input text "10.0.2.2:8106"
+warte id "$PKG:id/verbinden"; tippe
+
+echo "== Weboberfläche geladen"
+warte text "Rauchtest-Seite" 90
+bild seite
+
+echo "== Foto-Feld öffnet die eigene Kamera"
+warte text "Foto aufnehmen"; tippe
+warte id "$PKG:id/ausloeser" 60
+sleep 4
+bild kamera
+tippe
+
+echo "== Foto aufgenommen"
+warte text "1 Foto" 60
+bild ein-foto
+warte id "$PKG:id/fertig"; tippe
+
+echo "== Upload kommt an"
+warte text "hochgeladen OK" 90
+bild hochgeladen
+BYTES="$(cat upload-bytes.txt)"
+echo "Upload: $BYTES Bytes"
+[ "$BYTES" -gt 20000 ] || { echo "::error::Upload zu klein ($BYTES Bytes)"; exit 1; }
+
+echo "== App läuft noch"
+adb shell pidof "$PKG"
+if adb logcat -d | grep -q "FATAL EXCEPTION"; then
+    adb logcat -d | grep -A30 "FATAL EXCEPTION"
+    exit 1
+fi
+echo "Rauchtest bestanden."

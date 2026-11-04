@@ -1,0 +1,12 @@
+[
+  {
+    "version": "1.0",
+    "datum": "2026-11-04",
+    "punkte": [
+      "Erste Version der Inventar-App für Android.",
+      "Eigene Kamera fürs Handy: großer Auslöser, mehrere Fotos am Stück, Fotos vor dem Hochladen verwerfen.",
+      "Etiketten lassen sich direkt aus der App drucken.",
+      "Die App sucht beim Öffnen nach Updates und installiert sie auf Wunsch."
+    ]
+  }
+]
