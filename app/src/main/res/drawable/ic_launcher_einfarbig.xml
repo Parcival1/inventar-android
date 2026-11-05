@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DATAJOB-Logo (rotes D), aus dem 512er-Bild übernommen; 44 dp hoch, innerhalb der 66-dp-Schutzzone. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <group android:scaleX="0.10706" android:scaleY="0.10706"
+        android:translateX="25.12" android:translateY="26.54">
+        <path android:fillColor="#FFFFFF" android:fillType="evenOdd"
+            android:pathData="M78,51H250C376.9,51 461.5,133.2 461.5,256.5C461.5,379.8 376.9,462 250,462H78ZM107.5,80.5V432.5H250C359.2,432.5 432,362.1 432,256.5C432,150.9 359.2,80.5 250,80.5Z" />
+    </group>
+</vector>
