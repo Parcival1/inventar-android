@@ -54,8 +54,16 @@ adb shell am start -W -n "$PKG/.MainActivity"
 echo "== erster Start: Willkommen und Serveradresse"
 warte text "Willkommen" 90
 bild willkommen
-warte id "$PKG:id/eingabe"; tippe
-adb shell input text "10.0.2.2:8106"
+# Die Emulator-Tastatur verschluckt die erste Eingabe gelegentlich: prüfen und wiederholen.
+for versuch in 1 2 3; do
+    warte id "$PKG:id/eingabe"; tippe
+    sleep 2
+    adb shell input text "10.0.2.2:8106"
+    sleep 1
+    abzug && python3 "$HIER/finde.py" ui.xml text "10.0.2.2:8106" >/dev/null && break
+    echo "Eingabe nicht angekommen (Versuch $versuch)"
+done
+warte text "10.0.2.2:8106" 10
 warte id "$PKG:id/verbinden"; tippe
 
 echo "== Weboberfläche geladen"
