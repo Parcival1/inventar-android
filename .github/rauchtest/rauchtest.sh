@@ -81,6 +81,30 @@ BYTES="$(cat upload-bytes.txt)"
 echo "Upload: $BYTES Bytes"
 [ "$BYTES" -gt 20000 ] || { echo "::error::Upload zu klein ($BYTES Bytes)"; exit 1; }
 
+echo "== Nach unten wischen lädt die Seite neu"
+VORHER="$(cat seitenaufrufe.txt)"
+for _ in 1 2 3; do
+    adb shell input swipe 540 500 540 1600 400
+    sleep 4
+    [ "$(cat seitenaufrufe.txt)" -gt "$VORHER" ] && break
+done
+echo "Seitenaufrufe: $VORHER -> $(cat seitenaufrufe.txt)"
+[ "$(cat seitenaufrufe.txt)" -gt "$VORHER" ] || { echo "::error::Wischen hat die Seite nicht neu geladen"; bild wischen; exit 1; }
+warte text "Rauchtest-Seite" 60
+
+echo "== Scannen: Nummer eintippen öffnet den Artikel"
+warte text "Etikett scannen"; tippe
+warte id "$PKG:id/eintippen" 60
+sleep 3
+bild scanner
+tippe
+warte id "android:id/button1" 30
+adb shell input text "DJKA-00042"
+bild eintippen
+tippe
+warte text "Gescannt: DJKA-00042" 60
+bild gescannt
+
 echo "== App läuft noch"
 adb shell pidof "$PKG"
 # Nur Abstürze der App zählen; uiautomator selbst stürzt im Emulator gelegentlich ab.

@@ -76,12 +76,17 @@ kotlin {
 dependencies {
     implementation("androidx.core:core-ktx:1.15.0")
     implementation("androidx.activity:activity-ktx:1.9.3")
+    // Nach unten wischen = Seite neu laden
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
     val camerax = "1.4.1"
     implementation("androidx.camera:camera-core:$camerax")
     implementation("androidx.camera:camera-camera2:$camerax")
     implementation("androidx.camera:camera-lifecycle:$camerax")
     implementation("androidx.camera:camera-view:$camerax")
+    // Etiketten scannen: Erkennung auf dem Gerät, Modell in der App (kein Play-Dienst, kein Netz)
+    implementation("androidx.camera:camera-mlkit-vision:$camerax")
+    implementation("com.google.mlkit:barcode-scanning:17.3.0")
 
     testImplementation("junit:junit:4.13.2")
     // org.json ist im Android-Stub für Unit-Tests leer; echte Implementierung nur für Tests.

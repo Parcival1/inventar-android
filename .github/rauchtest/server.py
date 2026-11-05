@@ -1,7 +1,10 @@
 """Kleiner Ersatz-Server für den Rauchtest: /health wie Inventar, eine Seite
-mit dem Foto-Feld der echten Oberfläche und /upload, das die Bytes zählt."""
+mit dem Foto-Feld der echten Oberfläche, /upload, das die Bytes zählt, und
+/scan wie in Inventar. Jeder Aufruf der Seite wird gezählt (Wischen = neu laden)."""
+import html
 import http.server
 from pathlib import Path
+from urllib.parse import parse_qs, urlparse
 
 SEITE = (Path(__file__).parent / "seite.html").read_bytes()
 
@@ -15,9 +18,16 @@ class Handler(http.server.BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def do_GET(self):
-        if self.path == "/health":
+        adresse = urlparse(self.path)
+        if adresse.path == "/health":
             self._senden(200, b'{"status": "ok"}', "application/json")
+        elif adresse.path == "/scan":
+            code = html.escape(parse_qs(adresse.query).get("code", [""])[0])
+            self._senden(200, f"<!doctype html><meta charset=utf-8><h1>Gescannt: {code}</h1>".encode(),
+                         "text/html; charset=utf-8")
         else:
+            zaehler = Path("seitenaufrufe.txt")
+            zaehler.write_text(str(int(zaehler.read_text() or 0) + 1 if zaehler.exists() else 1))
             self._senden(200, SEITE, "text/html; charset=utf-8")
 
     def do_POST(self):

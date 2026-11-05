@@ -35,6 +35,12 @@
             android:theme="@style/Theme.Inventar.Kamera" />
 
         <activity
+            android:name=".ScannerActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Inventar.Kamera" />
+
+        <activity
             android:name=".EinstellungenActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />

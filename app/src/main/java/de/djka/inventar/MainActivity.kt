@@ -30,6 +30,8 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import java.net.URLEncoder
 
 /**
  * Die Inventar-Oberfläche im WebView. Nativ ergänzt: Kamera für Foto-Uploads,
@@ -39,6 +41,7 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var web: WebView
     private lateinit var fortschritt: ProgressBar
+    private lateinit var wischen: SwipeRefreshLayout
     private lateinit var fehler: View
     private lateinit var fehlerText: TextView
     private lateinit var speicher: Speicher
@@ -62,6 +65,12 @@ class MainActivity : ComponentActivity() {
         dateiRueckruf = null
     }
 
+    private val scanner = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { ergebnis ->
+        val code = ScannerActivity.code(ergebnis.resultCode, ergebnis.data) ?: return@registerForActivityResult
+        val server = speicher.server ?: return@registerForActivityResult
+        web.loadUrl("$server/scan?code=" + URLEncoder.encode(code, "UTF-8"))
+    }
+
     private val einstellungen = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         // Erster Start ohne Adresse und zurück gedrückt: App schließen statt leerer Seite.
         if (speicher.server == null) finish()
@@ -77,6 +86,11 @@ class MainActivity : ComponentActivity() {
         aktualisierung = Aktualisierung(this)
         web = findViewById(R.id.web)
         fortschritt = findViewById(R.id.fortschritt)
+        wischen = findViewById(R.id.wischen)
+        wischen.setColorSchemeResources(R.color.akzent)
+        wischen.setOnRefreshListener { neuLaden() }
+        // Nur ganz oben auf der Seite: sonst scrollt Wischen nach unten ganz normal.
+        wischen.setOnChildScrollUpCallback { _, _ -> web.scrollY > 0 }
         fehler = findViewById(R.id.fehler)
         fehlerText = findViewById(R.id.fehler_text)
 
@@ -162,6 +176,7 @@ class MainActivity : ComponentActivity() {
 
             override fun onPageFinished(view: WebView, url: String?) {
                 fortschritt.visibility = View.GONE
+                wischen.isRefreshing = false
                 if (!fehlerBeimLaden) {
                     fehler.visibility = View.GONE
                     web.visibility = View.VISIBLE
@@ -173,6 +188,7 @@ class MainActivity : ComponentActivity() {
             override fun onReceivedError(view: WebView, request: WebResourceRequest, error: WebResourceError) {
                 if (!request.isForMainFrame) return
                 fehlerBeimLaden = true
+                wischen.isRefreshing = false
                 fehlerText.text = getString(R.string.fehler_text, speicher.server ?: "")
                 web.visibility = View.INVISIBLE
                 fehler.visibility = View.VISIBLE
@@ -262,6 +278,9 @@ class MainActivity : ComponentActivity() {
 
         @JavascriptInterface
         fun einstellungen() = runOnUiThread { einstellungenOeffnen(erststart = false) }
+
+        @JavascriptInterface
+        fun scannen() = runOnUiThread { scanner.launch(Intent(this@MainActivity, ScannerActivity::class.java)) }
 
         @JavascriptInterface
         fun updatesSuchen() = runOnUiThread { aktualisierung.pruefen(vonHand = true) }

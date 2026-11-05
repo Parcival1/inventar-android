@@ -11,6 +11,9 @@
   <input id="feld" type="file" accept="image/*" capture="environment" multiple style="display: none">
 </label>
 <p id="stand" style="font-size: 22px">Dateien: 0</p>
+<!-- wie der Scannen-Knopf im Kopf der Inventar-Oberfläche -->
+<button type="button" onclick="window.InventarApp.scannen()" style="padding: 20px; font-size: 22px">Etikett scannen</button>
+<div style="height: 1200px"></div>
 <script>
   var feld = document.getElementById("feld"), stand = document.getElementById("stand");
   feld.addEventListener("change", function () {
