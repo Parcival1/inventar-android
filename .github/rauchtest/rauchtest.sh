@@ -107,7 +107,6 @@ sleep 3
 bild scanner
 tippe
 warte id "android:id/button1" 30
-OEFFNEN="$XY"
 # Wie bei der Serveradresse: Feld antippen, tippen, prüfen, ggf. wiederholen.
 for versuch in 1 2 3; do
     warte text "DJKA-00012" 10; tippe          # Platzhalter des leeren Felds
@@ -119,7 +118,8 @@ for versuch in 1 2 3; do
 done
 warte text "DJKA-00042" 10
 bild eintippen
-XY="$OEFFNEN"; tippe
+# Die Tastatur schiebt das Fenster hoch: Knopf erst jetzt suchen.
+warte id "android:id/button1" 10; tippe
 warte text "Gescannt: DJKA-00042" 60
 bild gescannt
 
