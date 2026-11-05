@@ -64,7 +64,8 @@ for versuch in 1 2 3; do
     echo "Eingabe nicht angekommen (Versuch $versuch)"
 done
 warte text "10.0.2.2:8106" 10
-warte id "$PKG:id/verbinden"; tippe
+# Enter statt Knopf: die Tastatur verdeckt/verschiebt „Verbinden“ im Emulator.
+adb shell input keyevent 66
 
 echo "== Weboberfläche geladen"
 warte text "Rauchtest-Seite" 90
@@ -118,8 +119,8 @@ for versuch in 1 2 3; do
 done
 warte text "DJKA-00042" 10
 bild eintippen
-# Die Tastatur schiebt das Fenster hoch: Knopf erst jetzt suchen.
-warte id "android:id/button1" 10; tippe
+# Enter statt „Öffnen“: die Tastatur verschiebt den Dialog.
+adb shell input keyevent 66
 warte text "Gescannt: DJKA-00042" 60
 bild gescannt
 
