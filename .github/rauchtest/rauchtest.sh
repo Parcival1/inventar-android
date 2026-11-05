@@ -107,9 +107,19 @@ sleep 3
 bild scanner
 tippe
 warte id "android:id/button1" 30
-adb shell input text "DJKA-00042"
+OEFFNEN="$XY"
+# Wie bei der Serveradresse: Feld antippen, tippen, prüfen, ggf. wiederholen.
+for versuch in 1 2 3; do
+    warte text "DJKA-00012" 10; tippe          # Platzhalter des leeren Felds
+    sleep 2
+    adb shell input text "DJKA-00042"
+    sleep 1
+    abzug && python3 "$HIER/finde.py" ui.xml text "DJKA-00042" >/dev/null && break
+    echo "Eingabe nicht angekommen (Versuch $versuch)"
+done
+warte text "DJKA-00042" 10
 bild eintippen
-tippe
+XY="$OEFFNEN"; tippe
 warte text "Gescannt: DJKA-00042" 60
 bild gescannt
 
