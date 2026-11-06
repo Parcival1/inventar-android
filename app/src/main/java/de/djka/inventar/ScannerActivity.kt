@@ -18,6 +18,7 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -52,6 +53,9 @@ class ScannerActivity : ComponentActivity() {
 
     companion object {
         private const val CODE = "code"
+
+        /** Aufruf über „Suchen“ auf der Artikelseite: nur der Titel ändert sich. */
+        const val SUCHEN = "suchen"
 
         /** Gelesener Text oder null (abgebrochen). */
         fun code(ergebnis: Int, daten: Intent?): String? =
@@ -95,6 +99,7 @@ class ScannerActivity : ComponentActivity() {
             insets
         }
 
+        if (intent.getBooleanExtra(SUCHEN, false)) findViewById<TextView>(R.id.titel).setText(R.string.scan_suchen_titel)
         findViewById<View>(R.id.schliessen).setOnClickListener { finish() }
         findViewById<View>(R.id.eintippen).setOnClickListener { eintippen() }
         findViewById<View>(R.id.hinweis_knopf).setOnClickListener {

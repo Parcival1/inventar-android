@@ -62,6 +62,7 @@
     <string name="kamera_erlaubnis_fehlt">Die App darf die Kamera nicht benutzen. Du kannst das in den Android-Einstellungen erlauben oder Fotos aus der Galerie wählen.</string>
     <string name="app_einstellungen_oeffnen">Android-Einstellungen öffnen</string>
     <string name="scan_titel">Etikett scannen</string>
+    <string name="scan_suchen_titel">Artikel suchen</string>
     <string name="scan_hinweis">Barcode des Etiketts in den Rahmen halten</string>
     <string name="scan_lampe">Lampe</string>
     <string name="scan_eintippen">Nummer eintippen</string>

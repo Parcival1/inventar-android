@@ -32,6 +32,7 @@ import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import java.net.URLEncoder
+import org.json.JSONObject
 
 /**
  * Die Inventar-Oberfläche im WebView. Nativ ergänzt: Kamera für Foto-Uploads,
@@ -69,6 +70,13 @@ class MainActivity : ComponentActivity() {
         val code = ScannerActivity.code(ergebnis.resultCode, ergebnis.data) ?: return@registerForActivityResult
         val server = speicher.server ?: return@registerForActivityResult
         web.loadUrl("$server/scan?code=" + URLEncoder.encode(code, "UTF-8"))
+    }
+
+    // „Suchen“ auf der Artikelseite: den gelesenen Text (oder null = abgebrochen) prüft die Seite selbst.
+    private val pruefer = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { ergebnis ->
+        val code = ScannerActivity.code(ergebnis.resultCode, ergebnis.data)
+        val wert = if (code == null) "null" else JSONObject.quote(code)
+        web.evaluateJavascript("window.inventarGescannt && window.inventarGescannt($wert);", null)
     }
 
     private val einstellungen = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -281,6 +289,11 @@ class MainActivity : ComponentActivity() {
 
         @JavascriptInterface
         fun scannen() = runOnUiThread { scanner.launch(Intent(this@MainActivity, ScannerActivity::class.java)) }
+
+        @JavascriptInterface
+        fun pruefen() = runOnUiThread {
+            pruefer.launch(Intent(this@MainActivity, ScannerActivity::class.java).putExtra(ScannerActivity.SUCHEN, true))
+        }
 
         @JavascriptInterface
         fun updatesSuchen() = runOnUiThread { aktualisierung.pruefen(vonHand = true) }
