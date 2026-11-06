@@ -1,5 +1,12 @@
 [
   {
+    "version": "1.5",
+    "datum": "2026-11-06",
+    "punkte": [
+      "„Suchen“ ohne Unterbrechung: Ein falsches Etikett wird jetzt rot direkt im Kamerabild gemeldet und die Kamera sucht einfach weiter. Erst beim richtigen Artikel schließt sie und zeigt den grünen Haken."
+    ]
+  },
+  {
     "version": "1.4",
     "datum": "2026-11-06",
     "punkte": [

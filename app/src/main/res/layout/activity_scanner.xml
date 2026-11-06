@@ -102,7 +102,52 @@
         android:paddingHorizontal="16dp"
         android:paddingTop="14dp">
 
+        <!-- „Suchen“: falsches Etikett. Die Kamera sucht weiter, nichts zu bestätigen. -->
+        <LinearLayout
+            android:id="@+id/falsch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="14dp"
+            android:background="@drawable/falsch_meldung"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="14dp"
+            android:visibility="gone"
+            android:accessibilityLiveRegion="assertive">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_falsch" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/suchen_falsch"
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/falsch_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:textColor="#E6FFFFFF"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </LinearLayout>
+
         <TextView
+            android:id="@+id/hinweis_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"

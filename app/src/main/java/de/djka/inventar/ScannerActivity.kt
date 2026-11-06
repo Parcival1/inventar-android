@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.media.AudioManager
 import android.media.ToneGenerator
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.text.InputType
@@ -57,6 +58,15 @@ class ScannerActivity : ComponentActivity() {
         /** Aufruf über „Suchen“ auf der Artikelseite: nur der Titel ändert sich. */
         const val SUCHEN = "suchen"
 
+        /**
+         * Gesuchte Inventarnummer („Suchen“ ab 1.5): Falsche Etiketten meldet der Scanner rot und sucht
+         * weiter; zurück kommt nur das richtige (oder eine eingetippte Nummer, die prüft die Seite).
+         */
+        const val ERWARTET = "erwartet"
+
+        /** Gleiche Nummer? Groß-/Kleinschreibung und Leerraum zählen nicht. */
+        fun passt(gelesen: String, erwartet: String) = gelesen.trim().equals(erwartet.trim(), ignoreCase = true)
+
         /** Gelesener Text oder null (abgebrochen). */
         fun code(ergebnis: Int, daten: Intent?): String? =
             if (ergebnis == Activity.RESULT_OK) daten?.getStringExtra(CODE)?.trim()?.takeIf { it.isNotEmpty() } else null
@@ -69,6 +79,8 @@ class ScannerActivity : ComponentActivity() {
     private var kamera: Camera? = null
     private var lampeAn = false
     private var fertig = false
+    private var erwartet: String? = null
+    private var letzterFalscher: String? = null
     private val ton: ToneGenerator? = try {
         ToneGenerator(AudioManager.STREAM_NOTIFICATION, 60)
     } catch (e: RuntimeException) {
@@ -100,6 +112,8 @@ class ScannerActivity : ComponentActivity() {
         }
 
         if (intent.getBooleanExtra(SUCHEN, false)) findViewById<TextView>(R.id.titel).setText(R.string.scan_suchen_titel)
+        erwartet = intent.getStringExtra(ERWARTET)?.trim()?.takeIf { it.isNotEmpty() }
+        if (erwartet != null) findViewById<TextView>(R.id.hinweis_text).setText(R.string.suchen_hinweis)
         findViewById<View>(R.id.schliessen).setOnClickListener { finish() }
         findViewById<View>(R.id.eintippen).setOnClickListener { eintippen() }
         findViewById<View>(R.id.hinweis_knopf).setOnClickListener {
@@ -163,10 +177,27 @@ class ScannerActivity : ComponentActivity() {
 
     private fun gefunden(text: String) {
         if (fertig) return
+        val gesucht = erwartet
+        if (gesucht != null && !passt(text, gesucht)) {
+            falsch(text, gesucht)
+            return
+        }
         fertig = true
         vorschau.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
         ton?.startTone(ToneGenerator.TONE_PROP_BEEP, 120)
         zurueck(text)
+    }
+
+    /** Rote Meldung im Kamerabild; die Kamera läuft weiter. Dasselbe Etikett meldet sich nur einmal. */
+    private fun falsch(text: String, gesucht: String) {
+        if (text == letzterFalscher) return
+        letzterFalscher = text
+        findViewById<TextView>(R.id.falsch_text).text = getString(R.string.suchen_falsch_text, text, gesucht)
+        findViewById<View>(R.id.falsch).visibility = View.VISIBLE
+        findViewById<View>(R.id.rahmen).setBackgroundResource(R.drawable.scan_rahmen_falsch)
+        vorschau.performHapticFeedback(
+            if (Build.VERSION.SDK_INT >= 30) HapticFeedbackConstants.REJECT else HapticFeedbackConstants.LONG_PRESS)
+        ton?.startTone(ToneGenerator.TONE_PROP_NACK, 200)
     }
 
     private fun eintippen() {

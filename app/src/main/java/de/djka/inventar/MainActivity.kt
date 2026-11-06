@@ -295,6 +295,13 @@ class MainActivity : ComponentActivity() {
             pruefer.launch(Intent(this@MainActivity, ScannerActivity::class.java).putExtra(ScannerActivity.SUCHEN, true))
         }
 
+        /** „Suchen“ ab 1.5: Der Scanner kennt die gesuchte Nummer und meldet falsche Etiketten selbst. */
+        @JavascriptInterface
+        fun suchen(erwartet: String) = runOnUiThread {
+            pruefer.launch(Intent(this@MainActivity, ScannerActivity::class.java)
+                .putExtra(ScannerActivity.SUCHEN, true).putExtra(ScannerActivity.ERWARTET, erwartet))
+        }
+
         @JavascriptInterface
         fun updatesSuchen() = runOnUiThread { aktualisierung.pruefen(vonHand = true) }
     }

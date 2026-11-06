@@ -63,6 +63,9 @@
     <string name="app_einstellungen_oeffnen">Android-Einstellungen öffnen</string>
     <string name="scan_titel">Etikett scannen</string>
     <string name="scan_suchen_titel">Artikel suchen</string>
+    <string name="suchen_hinweis">Etiketten nacheinander in den Rahmen halten</string>
+    <string name="suchen_falsch">Nicht der gesuchte Artikel</string>
+    <string name="suchen_falsch_text">Das ist %1$s · gesucht: %2$s</string>
     <string name="scan_hinweis">Barcode des Etiketts in den Rahmen halten</string>
     <string name="scan_lampe">Lampe</string>
     <string name="scan_eintippen">Nummer eintippen</string>
